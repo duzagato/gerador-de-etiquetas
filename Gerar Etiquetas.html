@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etiquetas</title>
+    <style>
+        @font-face{font-family: 'Open Sans'; src: url('OpenSans.ttf');}
+        *{margin:0; padding:0; box-sizing: border-box;}
+        body{font-family: "Open Sans", sans-serif;}
+        .container{position:fixed; left:0; top:0; height:100vh; width:20vw; padding:20px; flex-direction:column; display:flex; justify-content:start; align-items:center; background:#1e8bc3; color: white; gap: 0 50px;}
+        .container h2{display:flex; font-size: 1.6em; font-weight:lighter; text-align:center; margin-bottom:30px;}
+        form{display:flex; flex-direction:column; align-items:center;}
+        input{padding:10px; margin:10px;}
+        input[type="number"]{width:100px;}
+        select{height:40px; width:100px;}
+        input[type="text"]{width:200px;}
+        button{background:#2c3e50; color: #FFF; padding:10px 30px; cursor:pointer; transition: .4s; outline: 0; border:none;}
+        button:hover{background: #16a085; color: white;}
+        .etiquetas{display:flex; flex-wrap:wrap; width:210mm;}
+        .etiqueta{width:50%; height:74.25mm; display:flex; align-items:center; justify-content:center;}
+        .etiqueta span{font-family: Arial, Helvetica, sans-serif; font-size: 110px;}
+        .bottom{position:absolute; bottom:0; display:flex; flex-direction:column; width:100%;}
+        .gerar{padding:15px 25px; background: #2c3e50; font-size: 1.5em; width: 100%; text-align:center; cursor:pointer; transition: .4s;}
+        .gerar:hover{background:#16a085;}
+        .main{position:fixed; width:80vw; height:100vh; overflow-y:auto; right:0; background:white; display:flex; justify-content:center;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+    </div>
+    <div class="container">
+        <h2>Gerar Etiquetas</h2>
+        <form>
+            <label for="fontSize">Tamanho da Fonte: </label>
+            <input type="number" name="fontSize" class="fontSize" value="105" />
+        </form>
+        <form action="" method="post">
+            <label for="tipo">Tipo de Etiqueta: </label>
+            <select name="tipo" id="tipo">
+                <option value="numero">Número</option>
+                <option value="texto">Texto</option>
+            </select><br>
+        </form>
+            <div class="nav">
+                <form method="post" name="numero" class="numero">
+                    <input type="number" name="from" class="from" placeholder="De" />
+                    <input type="number" name="to" class="to" placeholder="Até" />
+                    <div class="rando">
+                        <input type="checkbox" name="random" class="random">
+                        <label for="random">Ordem aleatória</label>
+                    </div><br>
+                    <button type="submit" class="enviar">Criar</button>
+                </form>
+        
+                <form method="post" name="texto" class="texto" style="display:none;">
+                    <input type="text" name="conteudo" class="conteudo" placeholder="digite o texto da etiqueta"><br><br>
+                    <button type="submit" class="enviar">Criar</button>
+                </form>
+            </div>
+
+            <div class="bottom">
+                <span class="gerar" onclick="gerar()">Gerar</span>
+            </div>
+    </div>
+
+    <div class="main">
+        <div class="etiquetas">
+
+        </div>
+    </div>
+
+    <script src="html2pdf.bundle.min.js"></script>
+    <script type="text/javascript">
+        function createDiv(cl){
+            let div = document.createElement('div');
+            div.classList.add(cl);
+
+            return div;
+        }
+
+        function gerar(){
+            const etiquetas = document.querySelector('.etiquetas');
+            html2pdf(etiquetas);
+        }
+
+        document.getElementById('tipo').addEventListener('change', ()=>{
+            let optionValue = document.getElementById('tipo').value;
+            document.querySelector('.numero').style.display = 'none';
+            document.querySelector('.texto').style.display = 'none';
+            document.querySelector('.'+optionValue).style.display = '';
+        });
+
+        document.querySelector('.numero').addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const from = document.querySelector('.from').value;
+            const to = document.querySelector('.to').value;
+            const random = document.querySelector('.random');
+            const size = document.querySelector('.fontSize').value;
+
+            let numbers = [];
+
+            for(let i = parseInt(from); i <= to; i++){
+                numbers[i] = i;
+            }
+
+            if(random.checked){
+                numbers.sort(() => Math.random() - 0.5);
+            }
+
+            numbers.forEach(function (item){
+                let etiquetas = document.querySelector('.etiquetas');
+                let etiqueta = createDiv('etiqueta');
+                let span = document.createElement('span');
+                span.innerHTML = item;
+                span.style.fontSize = size+'px';
+                etiqueta.innerHTML = span.outerHTML;
+                etiquetas.appendChild(etiqueta);
+            });
+        });
+
+        document.querySelector('.texto').addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const conteudo = document.querySelector('.conteudo').value;
+            const size = document.querySelector('.fontSize').value;
+            let etiquetas = document.querySelector('.etiquetas');
+            let etiqueta = createDiv('etiqueta');
+            let span = document.createElement('span');
+            span.innerHTML = conteudo;
+            span.style.fontSize = size+'px';
+            etiqueta.innerHTML = span.outerHTML;
+            etiquetas.appendChild(etiqueta);
+            document.querySelector('.texto').reset();
+        });
+    </script>
+</body>
+</html>
